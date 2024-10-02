@@ -3,6 +3,7 @@ const express = require('express');
 const mysql = require('mysql2');
 
 const app = express();
+app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 const connection = mysql.createConnection({
@@ -23,7 +24,16 @@ app.get('/', (req, res) => {
         }
         console.log('connected as id ' + connection.threadId);
       });
-    
+});
+
+app.post('/login', (req, res) => {
+    //recebe os dados do formulário
+
+    const email = req.body.email;
+    const password = req.body.password;
+
+    //retorna os dados recebidos
+    res.json({email, password});
 
 });
 
