@@ -27,7 +27,6 @@ app.get('/', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    //recebe os dados do formulário
 
     const email = req.body.email;
     const password = req.body.password;
