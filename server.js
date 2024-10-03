@@ -7,15 +7,14 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 const connection = mysql.createConnection({
-    host: 'localhost',     // ou o endereço do seu servidor MySQL
-    user: 'root',
-    password: 'root',
-    database: 'test'
+    host: process.env.HOST,     // ou o endereço do seu servidor MySQL
+    user: process.env.USER,
+    password: process.env.PASSWORD,
+    database: process.env.DATABASE
   });
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
-    console.log('Página inicial acessada');
     //testar conexao
     connection.connect(function(err) {
         if (err) {
@@ -26,6 +25,8 @@ app.get('/', (req, res) => {
       });
 });
 
+
+//LOGIN ROUTES
 app.post('/login', (req, res) => {
 
     const email = req.body.email;
@@ -35,6 +36,28 @@ app.post('/login', (req, res) => {
     res.json({email, password});
 
 });
+
+
+//LOCALIZATIONS ROUTES
+  //function to get all countries in DB
+  app.get('/contries', (req, res) => {
+      connection.query('SELECT * FROM si_countries', function (err, rows, fields) {
+          if (err) throw err;
+          res.json(rows);
+      });
+  });
+
+  //function to get states by coutry id in DB
+  app.get('/states/:id', (req, res) => {
+    const id = req.params.id;
+    const query = `SELECT * FROM si_states WHERE id_country = ${id}`;
+    // connection.query(query, function (err, rows, fields) {
+    //     if (err) throw err;
+    //     res.json
+    //     (rows);
+    // });
+    return res.json({id, query});
+  });
 
 
 app.listen(PORT, () => {
