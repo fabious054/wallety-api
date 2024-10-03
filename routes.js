@@ -1,13 +1,6 @@
 const express = require('express');
-const mysql = require('mysql2');
+const DB = require('./dbControl');
 const router = express.Router();
-
-const connection = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE
-});
 
 // LOGIN ROUTES
 router.post('/login', (req, res) => {
@@ -16,20 +9,25 @@ router.post('/login', (req, res) => {
 });
 
 // LOCALIZATIONS ROUTES
-router.get('/countries', (req, res) => {
-    connection.query('SELECT * FROM si_countries', (err, rows) => {
-        if (err) throw err;
-        res.json(rows);
-    });
+router.get('/countries', async (req, res) => {
+    try {
+        const countries = await DB.executeQuery('SELECT * FROM si_countries');
+        res.json(countries);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao buscar países' });
+    }
 });
 
-router.get('/states/:id', (req, res) => {
+router.get('/states/:id', async (req, res) => {
     const id = req.params.id;
     const query = `SELECT * FROM si_states WHERE id_country = ${id}`;
-    connection.query(query, (err, rows) => {
-        if (err) throw err;
-        res.json(rows);
-    });
+    
+    try {
+        const states = await DB.executeQuery(query, [id]);
+        res.json(states);
+    } catch (err) {
+        res.status(500).json({ error: 'Erro ao buscar estados' });
+    }
 });
 
 module.exports = router;
