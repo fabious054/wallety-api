@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
     database: process.env.DATABASE
 });
 
-// Função genérica para executar consultas SQL
+// FUNCTION TO EXECUTE QUERIES
 const executeQuery = (query, params = []) => {
     return new Promise((resolve, reject) => {
         connection.query(query, (err, results) => {
