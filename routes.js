@@ -2,6 +2,7 @@ const express = require('express');
 const DB = require('./services/dbControl');
 const BCRYPT = require('./services/bcrypt');
 const UTILS = require('./functions/util');
+const JWT = require('./services/jwt');
 const router = express.Router();
 
 // Middleware to handle async errors
@@ -49,24 +50,32 @@ router.post('/login', (req, res) => {
     router.post('/user', asyncHandler(async(req, res) => {
         const { name,lastname,username,email,born,id_country,id_state,id_city,password } = req.body;
         
-        //verifica se todos os campos foram preenchidos
         if(!name || !lastname || !username || !email || !born || id_country == 'undefined' || id_state == 'undefined' || id_city == 'undefined' || !password){
             res.status(400).json({message: 'All fields are required',fields: 'name,lastname,username,email,born,id_country,id_state,id_city,password'});
             return;
         }
+        const checkData = await DB.checkDataUser(email, username);
+        if(checkData.emailExists || checkData.usernameExists){
+            res.status(400).json({message: 'Email or username already exists', emailExists: checkData.emailExists, usernameExists: checkData.usernameExists});
+            return;
+        }
         const createdTime = UTILS.getCurrentTime();
-        // HASH PASSWORD
         const hashedPassword = await BCRYPT.encryptPassword(password);
 
-//         INSERT INTO `si_users` (`name`, `lastname`, `username`, `email`, `born`, `id_country`, `id_state`, `id_city`, `password`, `token`, `created`, `position`)
-// VALUES ('admin', 'master', 'admin', 'admin@admin', '2024-10-04', '8', '21', '3481', '111', NULL, now(), 2);
-
         const query = `INSERT INTO si_users (name, lastname, username, email, born, id_country, id_state, id_city, password, created) VALUES ('${name}', '${lastname}', '${username}', '${email}', '${born}', ${id_country}, ${id_state}, '${id_city}', '${hashedPassword}', '${createdTime}')`;
-
         const result = await DB.executeQuery(query);
 
-        //retornar mensagem de sucesso e ultimo id inserido
-        res.status(201).json({message: 'User created successfully', id: result.insertId});
+        if(result.affectedRows === 0){
+            res.status(500).json({message: 'Error creating user'});
+            return;
+        }
+
+        const token = JWT.generateToken({id: result.insertId, email});
+        //atualizar o token no banco de dados
+        const updateTokenQuery = `UPDATE si_users SET token = '${token}' WHERE id = ${result.insertId}`;
+        await DB.executeQuery(updateTokenQuery);
+
+        res.json({message: 'User created successfully', token});
     }));
 
 // ####################################################################################################################################################################################################################################################################################################

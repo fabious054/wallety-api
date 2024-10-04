@@ -20,7 +20,30 @@ const executeQuery = (query, params = []) => {
     });
 };
 
+const checkDataUser = async (email, username) => {
+    const query = `SELECT email, username FROM si_users WHERE email = '${email}' OR username = '${username}'`;
+    const result = await executeQuery(query);
+
+    const userData = {
+        emailExists: false,
+        usernameExists: false,
+    };
+
+    if (result.length > 0) {
+        // Verifica se o email existe no resultado
+        if (result.some(user => user.email === email)) {
+            userData.emailExists = true;
+        }
+        // Verifica se o username existe no resultado
+        if (result.some(user => user.username === username)) {
+            userData.usernameExists = true;
+        }
+    }
+
+    return userData;
+};
 
 module.exports = {
-    executeQuery
+    executeQuery,
+    checkDataUser
 };
