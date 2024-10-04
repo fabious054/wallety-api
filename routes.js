@@ -54,13 +54,19 @@ router.post('/login', (req, res) => {
             res.status(400).json({message: 'All fields are required',fields: 'name,lastname,username,email,born,id_country,id_state,id_city,password'});
             return;
         }
-        
         const createdTime = UTILS.getCurrentTime();
-
         // HASH PASSWORD
         const hashedPassword = await BCRYPT.encryptPassword(password);
 
-        res.json({ name,lastname,username,email,born,id_country,id_state,id_city,hashedPassword ,createdTime});
+//         INSERT INTO `si_users` (`name`, `lastname`, `username`, `email`, `born`, `id_country`, `id_state`, `id_city`, `password`, `token`, `created`, `position`)
+// VALUES ('admin', 'master', 'admin', 'admin@admin', '2024-10-04', '8', '21', '3481', '111', NULL, now(), 2);
+
+        const query = `INSERT INTO si_users (name, lastname, username, email, born, id_country, id_state, id_city, password, created) VALUES ('${name}', '${lastname}', '${username}', '${email}', '${born}', ${id_country}, ${id_state}, '${id_city}', '${hashedPassword}', '${createdTime}')`;
+
+        const result = await DB.executeQuery(query);
+
+        //retornar mensagem de sucesso e ultimo id inserido
+        res.status(201).json({message: 'User created successfully', id: result.insertId});
     }));
 
 // ####################################################################################################################################################################################################################################################################################################
