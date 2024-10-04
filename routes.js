@@ -13,7 +13,33 @@ const asyncHandler = (fn) => (req, res, next) => {
 // LOGIN ROUTES ##################################################################################################################################################
 router.post('/login', (req, res) => {
     const { email, password } = req.body;
-    res.json({ email, password });
+    if(!email || !password){
+        res.status(400).json({message: 'Email and password are required'});
+        return;
+    }
+
+    const findEmailQuery = `SELECT * FROM si_users WHERE email = '${email}'`;
+    DB.executeQuery(findEmailQuery)
+        .then(async (result) => {
+            if(result.length === 0){
+                res.status(404).json({message: 'User not found',status: 404});
+                return;
+            }
+            const user = result[0];
+            const passwordMatch = await BCRYPT.comparePassword(password, user.password);
+            if(!passwordMatch){
+                res.status(401).json({message: 'Invalid password',status: 401});
+                return;
+            }
+           const token = user.token;
+           
+              delete user.password;
+
+            res.json({status: 200, message: 'Login successful', token,user});
+        })
+        .catch((error) => {
+            res.status(500).json({message: 'Error logging in', error,status: 500});
+        });
 });
 
 // ####################################################################################################################################################################################################################################################################################################
