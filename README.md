@@ -10,5 +10,8 @@
 - npm install nodemon
 - npm install dotenv
 - npm install mysql2
+- npm install bcrypt
+- npm install jsonwebtoken
+
 
 [Wallety-API](https://wallety-api.vercel.app)

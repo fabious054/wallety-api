@@ -1,5 +1,7 @@
 const express = require('express');
-const DB = require('./dbControl');
+const DB = require('./services/dbControl');
+const BCRYPT = require('./services/bcrypt');
+const UTILS = require('./functions/util');
 const router = express.Router();
 
 // Middleware to handle async errors
@@ -43,28 +45,24 @@ router.post('/login', (req, res) => {
 
 
 // USER ROUTES ##################################################################################################################################################
-// CREATE NEW USER
-router.post('/user', (req, res) => {
-    const { name,lastname,username,email,born,id_country,id_state,id_city,password } = req.body;
-    //hora de agora
-    const createdTime = new Date().toLocaleString('pt-BR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false // JUST TU USE 24H FORMAT
-    });
+    // CREATE NEW USER
+    router.post('/user', asyncHandler(async(req, res) => {
+        const { name,lastname,username,email,born,id_country,id_state,id_city,password } = req.body;
+        
+        //verifica se todos os campos foram preenchidos
+        if(!name || !lastname || !username || !email || !born || id_country == 'undefined' || id_state == 'undefined' || id_city == 'undefined' || !password){
+            res.status(400).json({message: 'All fields are required',fields: 'name,lastname,username,email,born,id_country,id_state,id_city,password'});
+            return;
+        }
+        
+        const createdTime = UTILS.getCurrentTime();
 
+        // HASH PASSWORD
+        const hashedPassword = await BCRYPT.encryptPassword(password);
 
-    res.json({ name,lastname,username,email,born,id_country,id_state,id_city,password ,createdTime});
-});
+        res.json({ name,lastname,username,email,born,id_country,id_state,id_city,hashedPassword ,createdTime});
+    }));
 
 // ####################################################################################################################################################################################################################################################################################################
-
-
-
-
 
 module.exports = router;
