@@ -1,4 +1,5 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+
 
 // FUNCTION TO ENCRYPT PASSWORD
 async function encryptPassword(password) {
