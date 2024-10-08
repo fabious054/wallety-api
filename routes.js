@@ -12,13 +12,13 @@ const asyncHandler = (fn) => (req, res, next) => {
 
 // LOGIN ROUTES ##################################################################################################################################################
 router.post('/login', (req, res) => {
-    const { email, password } = req.body;
-    if(!email || !password){
-        res.status(400).json({message: 'Email and password are required'});
+    const { username, password } = req.body;
+    if(!username || !password){
+        res.status(400).json({message: 'Username and password are required'});
         return;
     }
 
-    const findEmailQuery = `SELECT * FROM si_users WHERE email = '${email}'`;
+    const findEmailQuery = `SELECT * FROM si_users WHERE username = '${username}'`;
     DB.executeQuery(findEmailQuery)
         .then(async (result) => {
             if(result.length === 0){
