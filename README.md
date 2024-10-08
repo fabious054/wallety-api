@@ -12,6 +12,8 @@
 - npm install mysql2
 - npm install bcryptjs
 - npm install jsonwebtoken
+- npm install --save-dev @types/cors
+
 
 
 [Wallety-API](https://wallety-api.vercel.app)
