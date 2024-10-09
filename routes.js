@@ -57,7 +57,7 @@ router.post('/login', (req, res) => {
         const id = req.params.id;
         const query = `SELECT * FROM si_states WHERE id_country = ${id}`;
         const states = await DB.executeQuery(query);
-        res.json(states);
+        res.json({status: 200,data:states});
     }));
 
     // GET CITIES BY STATE
@@ -65,7 +65,7 @@ router.post('/login', (req, res) => {
         const id = req.params.id;
         const query = `SELECT * FROM si_cities WHERE id_state = ${id}`;
         const cities = await DB.executeQuery(query);
-        res.json(cities);
+        res.json({status: 200,data:cities});
     }));
 
 //##################################################################################################################################################
