@@ -35,7 +35,7 @@ router.post('/login', (req, res) => {
            
               delete user.password;
 
-            res.json({status: 200, message: 'Login successful', token,user});
+            res.json({status: 200, message: 'Login successful', token,data:user});
         })
         .catch((error) => {
             res.status(500).json({message: 'Error logging in', error,status: 500});
