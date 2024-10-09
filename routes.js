@@ -77,12 +77,12 @@ router.post('/login', (req, res) => {
         const { name,lastname,username,email,born,id_country,id_state,id_city,password } = req.body;
         
         if(!name || !lastname || !username || !email || !born || id_country == 'undefined' || id_state == 'undefined' || id_city == 'undefined' || !password){
-            res.status(400).json({message: 'All fields are required',fields: 'name,lastname,username,email,born,id_country,id_state,id_city,password'});
+            res.status(400).json({status:400,message: 'All fields are required',fields: 'name,lastname,username,email,born,id_country,id_state,id_city,password'});
             return;
         }
         const checkData = await DB.checkDataUser(email, username);
         if(checkData.emailExists || checkData.usernameExists){
-            res.status(400).json({message: 'Email or username already exists', emailExists: checkData.emailExists, usernameExists: checkData.usernameExists});
+            res.status(400).json({status:400,message: 'Email or username already exists', emailExists: checkData.emailExists, usernameExists: checkData.usernameExists});
             return;
         }
         const createdTime = UTILS.getCurrentTime();
@@ -92,7 +92,7 @@ router.post('/login', (req, res) => {
         const result = await DB.executeQuery(query);
 
         if(result.affectedRows === 0){
-            res.status(500).json({message: 'Error creating user'});
+            res.status(500).json({status:500,message: 'Error creating user'});
             return;
         }
 
@@ -101,7 +101,13 @@ router.post('/login', (req, res) => {
         const updateTokenQuery = `UPDATE si_users SET token = '${token}' WHERE id = ${result.insertId}`;
         await DB.executeQuery(updateTokenQuery);
 
-        res.json({message: 'User created successfully', token});
+        //chamar funcao login para retornar os dados do usuario
+        const findEmailQuery = `SELECT * FROM si_users WHERE username = '${username}'`;
+        const user = await DB.executeQuery(findEmailQuery);
+        delete user[0].password;
+
+
+        res.json({status:200,message: 'User created successfully', token,data:user[0]});
     }));
 
 // ####################################################################################################################################################################################################################################################################################################
