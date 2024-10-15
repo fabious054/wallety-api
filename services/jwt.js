@@ -6,12 +6,6 @@ function generateToken(user) {
         id: user.id,
         email: user.email,
         name: user.name,
-        lastname: user.lastname,
-        username: user.username,
-        born: user.born,
-        id_country: user.id_country,
-        id_state: user.id_state,
-        id_city: user.id_city
     };
 
     const token = jwt.sign(payload, 'seuSegredoSuperSecreto', { expiresIn: '24h' }); 
@@ -21,6 +15,8 @@ function generateToken(user) {
 function verifyToken(token) {
     //remove Bearer from token
     token = token.replace('Bearer ', '');
+    console.log(`aqui: ${token}`);
+    
     try {
         const decoded = jwt.verify(token, 'seuSegredoSuperSecreto');
         return decoded; // Retorna os dados decodificados (ex: id, email)

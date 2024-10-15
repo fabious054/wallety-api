@@ -97,7 +97,7 @@ router.post('/login', (req, res) => {
             return;
         }
 
-        const token = JWT.generateToken({id: result.insertId,name,lastname,username,email,born,id_country,id_state,id_city});
+        const token = JWT.generateToken({id: result.insertId,name,email});
         //atualizar o token no banco de dados
         const updateTokenQuery = `UPDATE si_users SET token = '${token}' WHERE id = ${result.insertId}`;
         await DB.executeQuery(updateTokenQuery);
@@ -139,7 +139,7 @@ router.post('/login', (req, res) => {
             return;
         }
 
-        const token = JWT.generateToken({id, name,lastname,username,email,born,id_country,id_state,id_city});
+        const token = JWT.generateToken({id, name,email});
         //atualizar o token no banco de dados
         const updateTokenQuery = `UPDATE si_users SET token = '${token}' WHERE id = ${id}`;
         await DB.executeQuery(updateTokenQuery);
