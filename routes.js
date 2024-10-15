@@ -118,6 +118,14 @@ router.post('/login', (req, res) => {
         const id = req.params.id;
         const { name,lastname,username,email,born,id_country,id_state,id_city } = req.body;
 
+        const authToken = req.headers.authorization;
+        const decodedToken = JWT.verifyToken(authToken);
+        
+        if(!decodedToken || decodedToken.id != id){
+            res.status(401).json({status:401,message: 'Unauthorized'});
+            return;
+        }
+
         if(!name || !lastname || !username || !email || !born || id_country == 'undefined' || id_state == 'undefined' || id_city == 'undefined'){
             res.status(400).json({status:400,message: 'All fields are required',fields: 'name,lastname,username,email,born,id_country,id_state,id_city'});
             return;

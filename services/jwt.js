@@ -19,6 +19,8 @@ function generateToken(user) {
 }
 
 function verifyToken(token) {
+    //remove Bearer from token
+    token = token.replace('Bearer ', '');
     try {
         const decoded = jwt.verify(token, 'seuSegredoSuperSecreto');
         return decoded; // Retorna os dados decodificados (ex: id, email)
