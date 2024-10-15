@@ -108,9 +108,40 @@ router.post('/login', (req, res) => {
         delete user[0].password;
 
 
-        res.json({status:200,message: 'User created successfully', token,data:user[0]});
+        res.json({status:200,message: 'User created successfully',data:user[0]});
         
 
+    }));
+
+    // EDIT USER
+    router.put('/user/:id', asyncHandler(async(req, res) => {
+        const id = req.params.id;
+        const { name,lastname,username,email,born,id_country,id_state,id_city } = req.body;
+
+        if(!name || !lastname || !username || !email || !born || id_country == 'undefined' || id_state == 'undefined' || id_city == 'undefined'){
+            res.status(400).json({status:400,message: 'All fields are required',fields: 'name,lastname,username,email,born,id_country,id_state,id_city'});
+            return;
+        }
+
+        const query = `UPDATE si_users SET name = '${name}', lastname = '${lastname}', username = '${username}', email = '${email}', born = '${born}', id_country = ${id_country}, id_state = ${id_state}, id_city = '${id_city}' WHERE id = ${id}`;
+        const result = await DB.executeQuery(query);
+
+        if(result.affectedRows === 0){
+            res.status(500).json({status:500,message: 'Error updating user'});
+            return;
+        }
+
+        const token = JWT.generateToken({id, name,lastname,username,email,born,id_country,id_state,id_city});
+        //atualizar o token no banco de dados
+        const updateTokenQuery = `UPDATE si_users SET token = '${token}' WHERE id = ${id}`;
+        await DB.executeQuery(updateTokenQuery);
+
+        //chamar funcao login para retornar os dados do usuario
+        const findEmailQuery = `SELECT * FROM si_users WHERE id = ${id}`;
+        const user = await DB.executeQuery(findEmailQuery);
+        delete user[0].password;
+
+        res.json({status:200,message: 'User updated successfully',data:user[0]});
     }));
 
 // ####################################################################################################################################################################################################################################################################################################
