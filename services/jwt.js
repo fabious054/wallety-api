@@ -2,10 +2,16 @@ const jwt = require('jsonwebtoken');
 
 // TOKEN GENERATOR
 function generateToken(user) {
-    
     const payload = {
         id: user.id,
-        email: user.email
+        email: user.email,
+        name: user.name,
+        lastname: user.lastname,
+        username: user.username,
+        born: user.born,
+        id_country: user.id_country,
+        id_state: user.id_state,
+        id_city: user.id_city
     };
 
     const token = jwt.sign(payload, 'seuSegredoSuperSecreto', { expiresIn: '24h' }); 

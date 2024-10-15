@@ -80,6 +80,7 @@ router.post('/login', (req, res) => {
             res.status(400).json({status:400,message: 'All fields are required',fields: 'name,lastname,username,email,born,id_country,id_state,id_city,password'});
             return;
         }
+        
         const checkData = await DB.checkDataUser(email, username);
         if(checkData.emailExists || checkData.usernameExists){
             res.status(400).json({status:400,message: 'Email or username already exists', emailExists: checkData.emailExists, usernameExists: checkData.usernameExists});
@@ -96,7 +97,7 @@ router.post('/login', (req, res) => {
             return;
         }
 
-        const token = JWT.generateToken({id: result.insertId, email});
+        const token = JWT.generateToken({id: result.insertId,name,lastname,username,email,born,id_country,id_state,id_city});
         //atualizar o token no banco de dados
         const updateTokenQuery = `UPDATE si_users SET token = '${token}' WHERE id = ${result.insertId}`;
         await DB.executeQuery(updateTokenQuery);
