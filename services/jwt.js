@@ -15,12 +15,16 @@ function generateToken(user) {
 function verifyToken(token) {
     //remove Bearer from token
     token = token.replace('Bearer ', '');
-    console.log(`aqui: ${token}`);
     
     try {
         const decoded = jwt.verify(token, 'seuSegredoSuperSecreto');
         return decoded; // Retorna os dados decodificados (ex: id, email)
     } catch (err) {
+
+        if (err.name === 'TokenExpiredError') {
+            return 'Token expirado'; // Retorna uma mensagem de erro se o token estiver expirado
+        }
+        
         return null; // Retorna null se o token for inválido ou expirado
     }
 }

@@ -31,9 +31,15 @@ router.post('/login', (req, res) => {
                 res.status(401).json({message: 'Invalid password',status: 401});
                 return;
             }
-           const token = user.token;
+            const token = user.token;
+            const newToken = JWT.generateToken({id: user.id, name: user.name,email:user.email});
+            const updateTokenQuery = `UPDATE si_users SET token = '${newToken}' WHERE id = ${user.id}`;
+            await DB.executeQuery(updateTokenQuery);
+
+            //formatar datas para o padrao sem ser 1999-12-06T02:00:00.000Z
+            user.born = UTILS.formatDate(user.born);
            
-              delete user.password;
+            delete user.password;
 
             res.json({status: 200, message: 'Login successful', token,data:user});
         })
@@ -121,10 +127,16 @@ router.post('/login', (req, res) => {
         const authToken = req.headers.authorization;
         const decodedToken = JWT.verifyToken(authToken);
         
+        if(decodedToken === 'Token expirado'){
+            res.status(401).json({status:401,message: 'Expired token'});
+            return;
+        }
+        
         if(!decodedToken || decodedToken.id != id){
             res.status(401).json({status:401,message: 'Unauthorized'});
             return;
         }
+
 
         if(!name || !lastname || !username || !email || !born || id_country == 'undefined' || id_state == 'undefined' || id_city == 'undefined'){
             res.status(400).json({status:400,message: 'All fields are required',fields: 'name,lastname,username,email,born,id_country,id_state,id_city'});
@@ -153,5 +165,24 @@ router.post('/login', (req, res) => {
     }));
 
 // ####################################################################################################################################################################################################################################################################################################
+
+    router.post('/token', asyncHandler(async(req, res) => {
+        const { token } = req.body;
+        const decodedToken = JWT.verifyToken(token);
+        if(decodedToken === 'Token expirado'){
+            res.status(401).json({status:401,message: 'Expired token'});
+            return;
+        }
+        if(!decodedToken){
+            res.status(401).json({status:401,message: 'Invalid token'});
+            return;
+        }
+        const query = `SELECT * FROM si_users WHERE id = ${decodedToken.id}`;
+        const user = await DB.executeQuery(query);
+        delete user[0].password;
+        res.json({status:200,message: 'Token is valid',data:user[0]});
+    }));
+
+
 
 module.exports = router;

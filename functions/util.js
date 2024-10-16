@@ -13,6 +13,16 @@ function getCurrentTime() {
     return date;
 }
 
+function formatDate(date){
+    // 1999-12-06T02:00:00.000Z to 06/12/1999
+    const dateObj = new Date(date);
+    const day = dateObj.getDate();
+    const month = dateObj.getMonth() + 1;
+    const year = dateObj.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 module.exports = {
-    getCurrentTime
+    getCurrentTime,
+    formatDate
 };
